@@ -1638,13 +1638,17 @@ endif # CPU_FREQ_MSM
 
     If in doubt, say N. 
 
+config CPU_OVERCLOCK
+	bool "Enable CPU Overclocking option"
+	default n
+	help
+	  Krait overclocking up to 1.84 GHz
+
 config CPU_VOLTAGE_TABLE
-bool "Enable CPU Voltage Table via sysfs for adjustements"
-default n
-help
-Krait User Votlage Control
-
-
+	bool "Enable CPU Voltage Table via sysfs for adjustements"
+	default n
+	help
+	  Krait User Votlage Control
 
 config MSM_CPU_AVS
 	bool "Enable software controlled Adaptive Voltage Scaling (AVS)"
