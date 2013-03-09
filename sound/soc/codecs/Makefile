@@ -222,4 +222,5 @@ obj-$(CONFIG_SND_SOC_TPA2028D)	+= tpa2028d.o
 # LGE_BSP_AUDIO, jeremy.pi@lge.com, 2012-11-17, Audience es325 ALSA SoC Audio driver
 ifeq ($(CONFIG_SND_SOC_ES325_SLIM),y)
 obj-$(CONFIG_SND_SOC_ES325_SLIM) += es325.o
+obj-$(CONFIG_SOUND_CONTROL_HAX_GPL) += sound_control_gpl.o
 endif
