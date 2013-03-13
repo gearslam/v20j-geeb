@@ -525,8 +525,8 @@ static int32_t msm_actuator_init_step_table_use_eeprom(struct msm_actuator_ctrl_
 	#elif defined(CONFIG_IMX111)
 	act_start = (uint16_t)(imx111_afcalib_data[1] << 8) |
 			imx111_afcalib_data[0];
-	act_macro = (uint16_t)(imx111_afcalib_data[3] << 8) |
-			imx111_afcalib_data[2];
+	act_macro = ((uint16_t)(imx111_afcalib_data[3] << 8) |
+        imx111_afcalib_data[2])+20; 
 	printk("[QCTK_EEPROM][IMX111] %s: act_start = %d\n",__func__,act_start);
 	printk("[QCTK_EEPROM][IMX111] %s: act_macro = %d\n",__func__,act_macro);
 	#endif
