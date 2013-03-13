@@ -571,7 +571,7 @@ static int apq8064_pm8921_therm_mitigation[] = {
 	1100,
 	700,
 	600,
-	325,
+	400,
 };
 
 #ifdef CONFIG_LGE_PM
