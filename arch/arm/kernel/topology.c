@@ -21,7 +21,7 @@
 
 #include <asm/cputype.h>
 #include <asm/topology.h>
-
+#define ARM_FAMILY_MASK 0xFF0FFFF0
 #define MPIDR_SMP_BITMASK (0x3 << 30)
 #define MPIDR_SMP_VALUE (0x2 << 30)
 
@@ -88,7 +88,11 @@ void store_cpu_topology(unsigned int cpuid)
 			cpuid_topo->socket_id = (mpidr >> MPIDR_LEVEL1_SHIFT)
 				& MPIDR_LEVEL1_MASK;
 		}
+        cpuid_topo->id = read_cpuid_id() & ARM_FAMILY_MASK;
 	} else {
+
+
+
 		/*
 		 * This is an uniprocessor system
 		 * we are in multiprocessor format but uniprocessor system
@@ -137,7 +141,7 @@ void init_cpu_topology(void)
 	/* init core mask */
 	for_each_possible_cpu(cpu) {
 		struct cputopo_arm *cpu_topo = &(cpu_topology[cpu]);
-
+                cpu_topo->id = -1;
 		cpu_topo->thread_id = -1;
 		cpu_topo->core_id =  -1;
 		cpu_topo->socket_id = -1;
