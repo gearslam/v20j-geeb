@@ -126,4 +126,3 @@ static void msm_cpufreq_limit_exit(void)
 
 module_init(msm_cpufreq_limit_init);
 module_exit(msm_cpufreq_limit_exit);
-

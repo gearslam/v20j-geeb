@@ -397,5 +397,6 @@ obj-$(CONFIG_MSM_VP_REGULATOR) += msm_vp.o
 ifdef CONFIG_MSM_CPR
 obj-$(CONFIG_DEBUG_FS) += msm_cpr-debug.o
 endif
-obj-$(CONFIG_MSM_CPUFREQ_LIMITER) += cpufreq_limit.o 
+obj-$(CONFIG_MSM_CPUFREQ_LIMITER) += cpufreq_limit.o
+>>>>>>> 78cf360... msm_cpu_freq_limit: initial coding for controlling MSM quadcore cpus
 obj-$(CONFIG_MSM_CPU_PWRCTL) +=  msm_cpu_pwrctl.o
