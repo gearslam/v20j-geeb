@@ -51,6 +51,7 @@ enum {
 	FTRACE_OPS_FL_GLOBAL		= 1 << 1,
 	FTRACE_OPS_FL_DYNAMIC		= 1 << 2,
 	FTRACE_OPS_FL_CONTROL		= 1 << 3,
+        FTRACE_OPS_FL_STUB              = 1 << 7,
 };
 
 struct ftrace_ops {

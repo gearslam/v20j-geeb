@@ -88,6 +88,7 @@ static DEFINE_MUTEX(ftrace_lock);
 
 static struct ftrace_ops ftrace_list_end __read_mostly = {
 	.func		= ftrace_stub,
+.flags    = FTRACE_OPS_FL_RECURSION_SAFE | FTRACE_OPS_FL_STUB,
 };
 
 static struct ftrace_ops *ftrace_global_list __read_mostly = &ftrace_list_end;
@@ -3963,7 +3964,8 @@ ftrace_ops_control_func(unsigned long ip, unsigned long parent_ip)
 	trace_recursion_set(TRACE_CONTROL_BIT);
 	op = rcu_dereference_raw(ftrace_control_list);
 	while (op != &ftrace_list_end) {
-		if (!ftrace_function_local_disabled(op) &&
+		if (!(op->flags & FTRACE_OPS_FL_STUB) &&
+        !ftrace_function_local_disabled(op) && 
 		    ftrace_ops_test(op, ip))
 			op->func(ip, parent_ip);
 
