@@ -49,6 +49,79 @@
 #include <mach/msm_xo.h>
 #include <mach/msm_bus.h>
 #include <mach/rpm-regulator.h>
+<<<<<<< HEAD
+=======
+#include <mach/cable_detect.h>
+#include <mach/board.h>
+#include <mach/board_htc.h>
+
+#ifdef CONFIG_FORCE_FAST_CHARGE
+#include <linux/fastchg.h>
+#endif
+
+#define MSM_USB_BASE	(motg->regs)
+#define DRIVER_NAME	"msm_otg"
+
+static int htc_otg_vbus;
+static int USB_disabled;
+static struct msm_otg *the_msm_otg;
+
+enum {
+    NOT_ON_AUTOBOT,
+    DOCK_ON_AUTOBOT,
+    HTC_MODE_RUNNING
+};
+
+static DEFINE_MUTEX(smwork_sem);
+static DEFINE_MUTEX(notify_sem);
+static void send_usb_connect_notify(struct work_struct *w)
+{
+	static struct t_usb_status_notifier *notifier;
+	struct msm_otg *motg = container_of(w, struct msm_otg,	notifier_work);
+	if (!motg)
+		return;
+
+	motg->connect_type_ready = 1;
+	USBH_INFO("send connect type %d\n", motg->connect_type);
+#ifdef CONFIG_FORCE_FAST_CHARGE
+	if (motg->connect_type == CONNECT_TYPE_USB) {
+		USB_peripheral_detected = USB_ACC_DETECTED; /* Inform forced fast charge that a USB accessory has been attached */
+		USBH_INFO("USB forced fast charge : USB device currently attached");
+	} else {
+		USB_peripheral_detected = USB_ACC_NOT_DETECTED; /* Inform forced fast charge that a USB accessory has not been attached */
+		USBH_INFO("USB forced fast charge : No USB device currently attached");
+	}
+#endif
+	mutex_lock(&notify_sem);
+	list_for_each_entry(notifier, &g_lh_usb_notifier_list, notifier_link) {
+		if (notifier->func != NULL) {
+			
+				notifier->func(motg->connect_type);
+		}
+	}
+	mutex_unlock(&notify_sem);
+}
+
+int htc_usb_register_notifier(struct t_usb_status_notifier *notifier)
+{
+	if (!notifier || !notifier->name || !notifier->func)
+		return -EINVAL;
+
+	mutex_lock(&notify_sem);
+	list_add(&notifier->notifier_link,
+		&g_lh_usb_notifier_list);
+	mutex_unlock(&notify_sem);
+	return 0;
+}
+
+int usb_is_connect_type_ready(void)
+{
+	if (!the_msm_otg)
+		return 0;
+	return the_msm_otg->connect_type_ready;
+}
+EXPORT_SYMBOL(usb_is_connect_type_ready);
+>>>>>>> 352af6e... forced fast charge
 
 #ifdef CONFIG_LGE_PM
 #include <mach/restart.h>
@@ -511,11 +584,20 @@ static int msm_otg_reset(struct usb_phy *phy)
 	u32 val = 0;
 	u32 ulpi_val = 0;
 
+<<<<<<< HEAD
 	/*
 	 * USB PHY and Link reset also reset the USB BAM.
 	 * Thus perform reset operation only once to avoid
 	 * USB BAM reset on other cases e.g. USB cable disconnections.
 	 */
+=======
+#ifdef CONFIG_FORCE_FAST_CHARGE
+	USB_porttype_detected = NO_USB_DETECTED; /* No USB plugged, clear fast charge detected port value */
+	is_fast_charge_forced = FAST_CHARGE_NOT_FORCED; /* No fast charge can be forced then... */
+	current_charge_mode = CURRENT_CHARGE_MODE_DISCHARGING; /* ... and we are now on battery */
+#endif
+
+>>>>>>> 352af6e... forced fast charge
 	if (pdata->disable_reset_on_disconnect) {
 		if (motg->reset_counter)
 			return 0;
@@ -2245,6 +2327,26 @@ static void msm_chg_detect_work(struct work_struct *w)
 		msm_chg_enable_aca_intr(motg);
 		dev_dbg(phy->dev, "chg_type = %s\n",
 			chg_to_string(motg->chg_type));
+#ifdef CONFIG_FORCE_FAST_CHARGE
+		switch (motg->chg_type) {
+		case USB_SDP_CHARGER:		USB_porttype_detected = USB_SDP_DETECTED;
+						break;
+		case USB_DCP_CHARGER:		USB_porttype_detected = USB_DCP_DETECTED;
+						break;
+		case USB_CDP_CHARGER:		USB_porttype_detected = USB_CDP_DETECTED;
+						break;
+		case USB_ACA_A_CHARGER:		USB_porttype_detected = USB_ACA_A_DETECTED;
+						break;
+		case USB_ACA_B_CHARGER:		USB_porttype_detected = USB_ACA_B_DETECTED;
+						break;
+		case USB_ACA_C_CHARGER:		USB_porttype_detected = USB_ACA_C_DETECTED;
+						break;
+		case USB_ACA_DOCK_CHARGER:	USB_porttype_detected = USB_ACA_DOCK_DETECTED;
+						break;
+		default:			USB_porttype_detected = USB_INVALID_DETECTED;
+						break;
+		}
+#endif
 		queue_work(system_nrt_wq, &motg->sm_work);
 		return;
 	default:
