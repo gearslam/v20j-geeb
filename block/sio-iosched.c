@@ -89,11 +89,7 @@ sio_queue_empty(struct request_queue *q)
 	struct sio_data *sd = q->elevator->elevator_data;
 
 	/* Check if fifo lists are empty */
-<<<<<<< HEAD
 	return list_empty(&sd->fifo_list[SYNC][READ]) && list_empty(&sd->fifo_list[SYNC][WRITE])
-=======
-	return list_empty(&sd->fifo_list[SYNC][READ]) && list_empty(&sd->fifo_list[SYNC][WRITE]) &&
->>>>>>> 71a9221... Add SIO I/O scheduler
 	       list_empty(&sd->fifo_list[ASYNC][READ]) && list_empty(&sd->fifo_list[ASYNC][WRITE]);
 }
 #endif
@@ -392,15 +388,7 @@ static void __exit sio_exit(void)
 	elv_unregister(&iosched_sio);
 }
 
-<<<<<<< HEAD
 module_init(sio_init);
-=======
-#ifdef CONFIG_FAST_RESUME
-beforeresume_initcall(sio_init);
-#else
-module_init(sio_init);
-#endif
->>>>>>> 71a9221... Add SIO I/O scheduler
 module_exit(sio_exit);
 
 MODULE_AUTHOR("Miguel Boton");
