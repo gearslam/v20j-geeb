@@ -33,7 +33,7 @@ config IOSCHED_NOOP
    	tristate "V(R) I/O scheduler"
 	default n
 	---help---
-	 Requests are chosen according to SSTF with a penalty of 	rev_penalty
+	 Requests are chosen according to SSTF with a penalty of rev_penalty
 	 for switching head direction.
 
 
@@ -107,9 +107,19 @@ choice
 	config DEFAULT_DEADLINE
 		bool "Deadline" if IOSCHED_DEADLINE=y
 
+
+	config DEFAULT_ROW
+		bool "ROW" if IOSCHED_ROW=y
+		help
+		  The ROW I/O scheduler gives priority to READ requests
+		  over the WRITE requests when dispatching, without starving
+		  WRITE requests. Requests are kept in priority queues.
+		  Dispatching is done in a RR manner when the dispatch quantum
+		  for each queue is defined according to queue priority.
+		  Most suitable for mobile devices.
+
 	config DEFAULT_CFQ
 		bool "CFQ" if IOSCHED_CFQ=y
-
 
 	config DEFAULT_NOOP
 		bool "No-op"
@@ -126,7 +136,6 @@ choice
         config DEFAULT_ZEN
                 bool "ZEN" if IOSCHED_ZEN=y
 
-	 
 endchoice
 
 config DEFAULT_IOSCHED
