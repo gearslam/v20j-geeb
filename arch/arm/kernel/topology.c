@@ -231,7 +231,6 @@ const struct cpumask *cpu_coregroup_mask(int cpu)
 {
 	return &cpu_topology[cpu].core_sibling;
 }
-
 void update_siblings_masks(unsigned int cpuid)
 {
 	struct cputopo_arm *cpu_topo, *cpuid_topo = &cpu_topology[cpuid];
@@ -241,17 +240,17 @@ void update_siblings_masks(unsigned int cpuid)
 	for_each_possible_cpu(cpu) {
 		cpu_topo = &cpu_topology[cpu];
 
-	if (cpuid_topo->socket_id != cpu_topo->socket_id)
+		if (cpuid_topo->socket_id != cpu_topo->socket_id)
 			continue;
 
-	cpumask_set_cpu(cpuid, &cpu_topo->core_sibling);
+		cpumask_set_cpu(cpuid, &cpu_topo->core_sibling);
 		if (cpu != cpuid)
 			cpumask_set_cpu(cpu, &cpuid_topo->core_sibling);
 
-	if (cpuid_topo->core_id != cpu_topo->core_id)
+		if (cpuid_topo->core_id != cpu_topo->core_id)
 			continue;
 
-	cpumask_set_cpu(cpuid, &cpu_topo->thread_sibling);
+		cpumask_set_cpu(cpuid, &cpu_topo->thread_sibling);
 		if (cpu != cpuid)
 			cpumask_set_cpu(cpu, &cpuid_topo->thread_sibling);
 	}
@@ -267,6 +266,7 @@ void store_cpu_topology(unsigned int cpuid)
 {
 	struct cputopo_arm *cpuid_topo = &cpu_topology[cpuid];
 	unsigned int mpidr;
+
 
 	/* If the cpu topology has been already set, just return */
 	if (cpuid_topo->core_id != -1)
@@ -312,10 +312,7 @@ void store_cpu_topology(unsigned int cpuid)
 		cpuid_topo->socket_id = -1;
 	}
 
-	/* update core and thread sibling masks */
 	update_siblings_masks(cpuid);
-
-	update_cpu_power(cpuid, mpidr & MPIDR_HWID_BITMASK);
 
 	printk(KERN_INFO "CPU%u: thread %d, cpu %d, socket %d, mpidr %x\n",
 		cpuid, cpu_topology[cpuid].thread_id,
