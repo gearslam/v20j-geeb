@@ -29,7 +29,7 @@
 #endif
 
 #ifdef CONFIG_LGE_PM
-#define DEF_ALLOWED_MAX_FREQ 918000
+#define DEF_ALLOWED_MAX_FREQ 1026000
 #endif
 
 static int enabled;
