@@ -2079,8 +2079,8 @@ static struct msm_thermal_data msm_thermal_pdata = {
 	.poll_ms = 1000,
 	.limit_temp_degC = 93,
 #else
-	.poll_ms = 250,
-	.limit_temp_degC = 60,
+	.poll_ms = 500,
+	.limit_temp_degC = 65,
 #endif
 	.temp_hysteresis_degC = 10,
 	.freq_step = 2,
