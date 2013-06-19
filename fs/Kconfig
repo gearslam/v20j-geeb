@@ -14,6 +14,11 @@ config DYNAMIC_FSYNC
 	help
 		An experimental file sync control using Android's early suspend / late resume drivers
 
+config VFS_CACHE_PRESSURE
+	int "vfs Cache Pressure"
+	default 50
+	help
+
 if BLOCK
 
 source "fs/ext2/Kconfig"
