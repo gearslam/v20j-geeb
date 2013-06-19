@@ -836,7 +836,6 @@ static enum hrtimer_restart tick_sched_timer(struct hrtimer *timer)
 	/* Check, if the jiffies need an update */
 	if (tick_do_timer_cpu == cpu)
 		tick_do_update_jiffies64(now);
-		update_cpu_load_nohz();
 
 	/*
 	 * Do not call, when we are not in irq context and have
