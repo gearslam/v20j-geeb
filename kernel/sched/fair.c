@@ -2643,9 +2643,7 @@ find_idlest_cpu(struct sched_group *group, struct task_struct *p, int this_cpu)
 static int select_idle_sibling(struct task_struct *p, int target)
 {
 	struct sched_domain *sd;
-	struct sched_group *sg;
-	int i = task_cpu(p);
-
+	
 	if (idle_cpu(target))
 		return target;
 
@@ -2665,25 +2663,12 @@ static int select_idle_sibling(struct task_struct *p, int target)
 	 */
 	sd = rcu_dereference(per_cpu(sd_llc, target));
 	for_each_lower_domain(sd) {
-		sg = sd->groups;
-		do {
-			if (!cpumask_intersects(sched_group_cpus(sg),
-						tsk_cpus_allowed(p)))
-				goto next;
-
-			for_each_cpu(i, sched_group_cpus(sg)) {
-				if (i == target || !idle_cpu(i))
-					goto next;
-			}
-
-			target = cpumask_first_and(sched_group_cpus(sg),
-					tsk_cpus_allowed(p));
-			goto done;
-next:
-			sg = sg->next;
-		} while (sg != sd->groups);
+		if (!cpumask_test_cpu(sd->idle_buddy, tsk_cpus_allowed(p)))
+			continue;
+		if (idle_cpu(sd->idle_buddy))
+			return sd->idle_buddy;
 	}
-done:
+
 	return target;
 }
 
@@ -3817,7 +3802,7 @@ static inline void update_sg_lb_stats(struct sched_domain *sd,
 			load = source_load(i, load_idx);
 			if (load > max_cpu_load)
 				max_cpu_load = load;
-			}
+			
 			if (min_cpu_load > load)
 				min_cpu_load = load;
 
@@ -3835,12 +3820,6 @@ static inline void update_sg_lb_stats(struct sched_domain *sd,
 			sgs->idle_cpus++;
 	}
 
-	/*
-	 * First idle cpu or the first cpu(busiest) in this sched group
-	 * is eligible for doing load balancing at this and above
-	 * domains. In the newly idle case, we will allow all the cpu's
-	 * to do the newly idle load balance.
-	 */
 	if (local_group) {
 		if (idle != CPU_NEWLY_IDLE) {
 			if (balance_cpu != this_cpu) {
@@ -3852,18 +3831,9 @@ static inline void update_sg_lb_stats(struct sched_domain *sd,
 			update_group_power(sd, this_cpu);
 	}
 
-	/* Adjust by relative CPU power of the group */
+
 	sgs->avg_load = (sgs->group_load*SCHED_POWER_SCALE) / group->sgp->power;
 
-	/*
-	 * Consider the group unbalanced when the imbalance is larger
-	 * than the average weight of a task.
-	 *
-	 * APZ: with cgroup the avg task weight can vary wildly and
-	 *      might not be a suitable number - should we keep a
-	 *      normalized nr_running number somewhere that negates
-	 *      the hierarchy?
-	 */
 	if (sgs->sum_nr_running)
 		avg_load_per_task = sgs->sum_weighted_load / sgs->sum_nr_running;
 
@@ -3879,19 +3849,8 @@ static inline void update_sg_lb_stats(struct sched_domain *sd,
 
 	if (sgs->group_capacity > sgs->sum_nr_running)
 		sgs->group_has_capacity = 1;
-}
 
-/**
- * update_sd_pick_busiest - return 1 on busiest group
- * @sd: sched_domain whose statistics are to be checked
- * @sds: sched_domain statistics
- * @sg: sched_group candidate to be checked for being the busiest
- * @sgs: sched_group statistics
- * @this_cpu: the current cpu
- *
- * Determine if @sg is a busier group than the previously selected
- * busiest group.
- */
+
 static bool update_sd_pick_busiest(struct sched_domain *sd,
 				   struct sd_lb_stats *sds,
 				   struct sched_group *sg,
@@ -3907,11 +3866,6 @@ static bool update_sd_pick_busiest(struct sched_domain *sd,
 	if (sgs->group_imb)
 		return true;
 
-	/*
-	 * ASYM_PACKING needs to move all the work to the lowest
-	 * numbered CPUs in the group, therefore mark all groups
-	 * higher than ourself as busy.
-	 */
 	if ((sd->flags & SD_ASYM_PACKING) && sgs->sum_nr_running &&
 	    this_cpu < group_first_cpu(sg)) {
 		if (!sds->busiest)
