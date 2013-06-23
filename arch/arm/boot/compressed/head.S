@@ -634,6 +634,7 @@ __arm926ejs_mmu_cache_on:
 
 __armv4_mmu_cache_on:
 		mov	r12, lr
+		bic     r0, r0, #1 << 28        @ clear SCTLR.TRE
 #ifdef CONFIG_MMU
 		bl	__setup_mmu
 		mov	r0, #0
